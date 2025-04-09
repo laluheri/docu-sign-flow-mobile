@@ -1,11 +1,15 @@
 
 import { useEffect } from "react";
 import StatsCard from "@/components/StatsCard";
-import { FileText, CheckCircle, XCircle, Files } from "lucide-react";
+import { FileText, CheckCircle, XCircle, Files, User, Building, Mail } from "lucide-react";
 import { getDashboardStats } from "@/data/mockData";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Home = () => {
   const stats = getDashboardStats();
+  const { user } = useAuth();
+  const userData = user?.userData;
 
   useEffect(() => {
     document.title = "Home - Document Signing";
@@ -18,6 +22,37 @@ const Home = () => {
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Overview of your document activities</p>
         </div>
+
+        {userData && (
+          <Card className="mb-6 border-l-4 border-l-blue-500">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold mb-4">User Information</h2>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <Building className="w-5 h-5 mr-3 text-blue-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Department</p>
+                    <p className="font-medium">{userData.skpd_name || "Not available"}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <User className="w-5 h-5 mr-3 text-blue-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Username</p>
+                    <p className="font-medium">{userData.user_username || "Not available"}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Mail className="w-5 h-5 mr-3 text-blue-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="font-medium">{userData.user_email || "Not available"}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <StatsCard 

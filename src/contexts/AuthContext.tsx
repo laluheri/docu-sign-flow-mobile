@@ -1,9 +1,29 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+interface UserData {
+  user_id?: number;
+  user_level_id?: number;
+  skpd_name?: string;
+  skpd_generate?: string;
+  user_spesimen?: string | null;
+  nik?: string;
+  user_name?: string;
+  user_email?: string;
+  user_phone?: string;
+  user_username?: string;
+  user_status?: string;
+  user_check?: string;
+  token?: string | null;
+  user_kepala_daerah?: string;
+  user_create_date?: string;
+  email?: string; // Keep for backward compatibility
+}
+
 interface User {
   email: string;
-  token?: string; // Added token for API authentication
+  token?: string;
+  userData?: UserData;
 }
 
 interface LoginCredentials {
@@ -58,22 +78,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await response.json();
       
-      if (!response.ok) {
+      if (!response.ok || data.status === false) {
         throw new Error(data.message || "Login failed. Please check your credentials.");
       }
       
-      // Assuming the API returns user info and token
-      const userData = {
-        email: credentials.email,
-        token: data.token || data.access_token // Adapting to possible API response formats
+      // Handle the new response format
+      const userData = data.data;
+      const token = data.token;
+      
+      // Create user object with both old and new structure
+      const userObject = {
+        email: userData?.user_email || credentials.email,
+        token: token,
+        userData: userData
       };
       
       setIsAuthenticated(true);
-      setUser(userData);
+      setUser(userObject);
       
       // Store authentication in localStorage
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify(userObject));
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
       throw err;
