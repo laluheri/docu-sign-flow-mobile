@@ -64,6 +64,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     
     try {
+      // Process the email to handle cases without @ symbol
+      let loginEmail = credentials.email;
+      
+      // If the email doesn't contain @, assume it's a username and append the domain
+      if (!loginEmail.includes('@')) {
+        loginEmail = `${loginEmail}@lombokutarakab.go.id`;
+      }
+      
       const response = await fetch("https://ttd.lombokutarakab.go.id/api/login", {
         method: "POST",
         headers: {
@@ -71,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          email: credentials.email,
+          email: loginEmail,
           password: credentials.password
         })
       });
@@ -88,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Create user object with both old and new structure
       const userObject = {
-        email: userData?.user_email || credentials.email,
+        email: userData?.user_email || loginEmail,
         token: token,
         userData: userData
       };

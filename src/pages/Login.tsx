@@ -56,18 +56,21 @@ const Login = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email or Username</Label>
             <div className="flex items-center rounded-md border px-3">
               <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
-                type="email"
-                placeholder="you@example.com"
+                type="text"
+                placeholder="username or email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              You can enter just your username without @lombokutarakab.go.id
+            </p>
           </div>
 
           <div className="space-y-2">
