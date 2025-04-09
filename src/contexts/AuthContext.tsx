@@ -3,13 +3,21 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 
 interface User {
   email: string;
+  token?: string; // Added token for API authentication
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (user: User) => void;
+  login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +25,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check local storage for authentication status on component mount
@@ -29,11 +39,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = (userData: User) => {
-    setIsAuthenticated(true);
-    setUser(userData);
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("user", JSON.stringify(userData));
+  const login = async (credentials: LoginCredentials) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch("https://ttd.lombokutarakab.go.id/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed. Please check your credentials.");
+      }
+      
+      // Assuming the API returns user info and token
+      const userData = {
+        email: credentials.email,
+        token: data.token || data.access_token // Adapting to possible API response formats
+      };
+      
+      setIsAuthenticated(true);
+      setUser(userData);
+      
+      // Store authentication in localStorage
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("user", JSON.stringify(userData));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
@@ -44,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );
