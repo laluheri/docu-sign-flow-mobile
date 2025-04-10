@@ -48,7 +48,7 @@ const DocumentView = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [document, setDocument] = useState<DocumentData | null>(null);
+  const [documentData, setDocumentData] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSignDialogOpen, setIsSignDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
@@ -91,7 +91,7 @@ const DocumentView = () => {
         throw new Error("Failed to fetch document details");
       }
       
-      setDocument(responseData.data);
+      setDocumentData(responseData.data);
       
       // Create PDF URL
       if (responseData.data.content_file) {
@@ -110,13 +110,15 @@ const DocumentView = () => {
     }
   };
   
+  // Set the page title based on document data
   useEffect(() => {
-    if (document) {
-      document.title = `${document.content_title} - Document Signing`;
+    if (documentData) {
+      // Use window.document instead of document to avoid confusion with our state variable
+      window.document.title = `${documentData.content_title} - Document Signing`;
     } else {
-      document.title = "Document Details - Document Signing";
+      window.document.title = "Document Details - Document Signing";
     }
-  }, [document]);
+  }, [documentData]);
   
   const handleBack = () => {
     navigate("/requests");
@@ -176,7 +178,7 @@ const DocumentView = () => {
     );
   }
 
-  if (!document) {
+  if (!documentData) {
     return (
       <div className="mobile-container">
         <div className="page-content">
@@ -203,34 +205,34 @@ const DocumentView = () => {
             <ArrowLeft size={20} />
           </Button>
           <div>
-            <h1 className="text-xl font-bold">{document.content_title}</h1>
-            <p className="text-sm text-muted-foreground">From: {document.user_dari?.user_name || 'Unknown Sender'}</p>
+            <h1 className="text-xl font-bold">{documentData.content_title}</h1>
+            <p className="text-sm text-muted-foreground">From: {documentData.user_dari?.user_name || 'Unknown Sender'}</p>
           </div>
         </div>
         
         <div className="bg-card p-4 rounded-lg border mb-6 space-y-4">
           <div className="grid grid-cols-2 gap-2 text-sm">
             <p className="text-muted-foreground">Status:</p>
-            <p className={`font-medium ${document.content_status.toLowerCase() === 'active' ? 'text-amber-600' : 
-              document.content_status.toLowerCase() === 'signed' ? 'text-green-600' : 
-              document.content_status.toLowerCase() === 'rejected' ? 'text-red-600' : ''}`}>
-              {document.content_status === 'active' ? 'Pending' : document.content_status.charAt(0).toUpperCase() + document.content_status.slice(1)}
+            <p className={`font-medium ${documentData.content_status.toLowerCase() === 'active' ? 'text-amber-600' : 
+              documentData.content_status.toLowerCase() === 'signed' ? 'text-green-600' : 
+              documentData.content_status.toLowerCase() === 'rejected' ? 'text-red-600' : ''}`}>
+              {documentData.content_status === 'active' ? 'Pending' : documentData.content_status.charAt(0).toUpperCase() + documentData.content_status.slice(1)}
             </p>
             
             <p className="text-muted-foreground">Date:</p>
-            <p className="font-medium">{formatDate(document.content_create_date)}</p>
+            <p className="font-medium">{formatDate(documentData.content_create_date)}</p>
             
             <p className="text-muted-foreground">Department:</p>
-            <p className="font-medium">{document.user_dari?.skpd_name || '-'}</p>
+            <p className="font-medium">{documentData.user_dari?.skpd_name || '-'}</p>
             
             <p className="text-muted-foreground">Sign Type:</p>
-            <p className="font-medium capitalize">{document.content_sign_type}</p>
+            <p className="font-medium capitalize">{documentData.content_sign_type}</p>
           </div>
           
-          {document.content_desc && (
+          {documentData.content_desc && (
             <div className="pt-2 border-t">
               <p className="text-sm text-muted-foreground mb-1">Description:</p>
-              <p className="text-sm">{document.content_desc}</p>
+              <p className="text-sm">{documentData.content_desc}</p>
             </div>
           )}
         </div>
@@ -257,12 +259,12 @@ const DocumentView = () => {
                 <iframe 
                   src={`${pdfUrl}#toolbar=0`} 
                   className="w-full h-full rounded border border-muted"
-                  title={document.content_title}
+                  title={documentData.content_title}
                 />
               </div>
               <a 
                 href={pdfUrl} 
-                download={document.content_file}
+                download={documentData.content_file}
                 className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
               >
                 <Download size={16} />
@@ -272,7 +274,7 @@ const DocumentView = () => {
           </div>
         )}
         
-        {document.content_status === 'active' && document.user_to === user?.userData?.user_id && (
+        {documentData.content_status === 'active' && documentData.user_to === user?.userData?.user_id && (
           <div className="flex gap-4 mb-4">
             <Button 
               className="flex-1 gap-2" 
