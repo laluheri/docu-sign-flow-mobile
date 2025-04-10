@@ -85,18 +85,27 @@ const DocumentView = () => {
         }
       });
       
-      const responseData: ApiResponse = await response.json();
+      const responseData = await response.json();
       
       if (!response.ok || !responseData.status) {
         throw new Error("Failed to fetch document details");
       }
       
-      setDocumentData(responseData.data);
+      // The API returns data in a nested structure
+      const docData = responseData.data.data && responseData.data.data.length > 0 
+        ? responseData.data.data[0] 
+        : null;
+        
+      if (!docData) {
+        throw new Error("Document not found");
+      }
+      
+      setDocumentData(docData);
       
       // Create PDF URL
-      if (responseData.data.content_file) {
-        // Assuming the backend provides a full path or we need to construct it
-        setPdfUrl(`https://ttd.lombokutarakab.go.id/uploads/documents/${responseData.data.content_file}`);
+      if (docData.content_file) {
+        // Construct the PDF URL
+        setPdfUrl(`https://ttd.lombokutarakab.go.id/uploads/documents/${docData.content_file}`);
       }
       
     } catch (error) {
@@ -213,10 +222,14 @@ const DocumentView = () => {
         <div className="bg-card p-4 rounded-lg border mb-6 space-y-4">
           <div className="grid grid-cols-2 gap-2 text-sm">
             <p className="text-muted-foreground">Status:</p>
-            <p className={`font-medium ${documentData.content_status.toLowerCase() === 'active' ? 'text-amber-600' : 
-              documentData.content_status.toLowerCase() === 'signed' ? 'text-green-600' : 
-              documentData.content_status.toLowerCase() === 'rejected' ? 'text-red-600' : ''}`}>
-              {documentData.content_status === 'active' ? 'Pending' : documentData.content_status.charAt(0).toUpperCase() + documentData.content_status.slice(1)}
+            <p className={`font-medium ${
+              documentData.content_status === 'active' ? 'text-amber-600' : 
+              documentData.content_status === 'signed' || documentData.content_status === 'approved' ? 'text-green-600' : 
+              documentData.content_status === 'rejected' ? 'text-red-600' : ''
+            }`}>
+              {documentData.content_status === 'active' ? 'Pending' : 
+               documentData.content_status === 'approved' ? 'Signed' :
+               documentData.content_status.charAt(0).toUpperCase() + documentData.content_status.slice(1)}
             </p>
             
             <p className="text-muted-foreground">Date:</p>
