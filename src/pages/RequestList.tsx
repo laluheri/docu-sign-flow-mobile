@@ -52,16 +52,19 @@ const RequestList = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`https://ttd.lombokutarakab.go.id/api/getDoc`, {
-        method: "POST",
+      // Build query parameters for the GET request
+      const params = new URLSearchParams({
+        user_id: user.userData.user_id?.toString() || "",
+        user_level_id: user.userData.user_level_id?.toString() || "",
+        skpd_generate: user.userData.skpd_generate || "",
+        page: page.toString()
+      });
+
+      const response = await fetch(`https://ttd.lombokutarakab.go.id/api/getDoc?${params.toString()}`, {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          skpd_generate: user.userData.skpd_generate || "",
-          user_id: user.userData.user_id || ""
-        })
+        }
       });
 
       const data: ApiResponse = await response.json();

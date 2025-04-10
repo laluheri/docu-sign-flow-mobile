@@ -37,8 +37,14 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     }
   };
 
+  // Build the correct link for the document detail
+  const getDocumentUrl = () => {
+    // Use the correct URL format with query parameters
+    return `/requests/${document.id}`;
+  };
+
   return (
-    <Link to={`/requests/${document.id}`}>
+    <Link to={getDocumentUrl()}>
       <Card className="hover:border-primary/50 transition-colors cursor-pointer">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
