@@ -53,7 +53,7 @@ const DocumentView = () => {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   
-  const DUMMY_PDF_URL = "https://spks.or.id/file/publikasi/Test.pdf";
+  const TEST_PDF_URL = "https://spks.or.id/file/publikasi/Test.pdf";
   
   useEffect(() => {
     if (!id || !user?.userData) {
@@ -92,7 +92,6 @@ const DocumentView = () => {
         throw new Error("Failed to fetch document details");
       }
       
-      // The API returns data in a nested structure
       const docData = responseData.data.data && responseData.data.data.length > 0 
         ? responseData.data.data[0] 
         : null;
@@ -103,14 +102,8 @@ const DocumentView = () => {
       
       setDocumentData(docData);
       
-      // Create PDF URL - use dummy URL if no content file is available
-      if (docData.content_file) {
-        setPdfUrl(`https://ttd.lombokutarakab.go.id/uploads/documents/${docData.content_file}`);
-      } else {
-        // Use the dummy PDF URL when content_file is not available
-        setPdfUrl(DUMMY_PDF_URL);
-        console.log("Using dummy PDF URL:", DUMMY_PDF_URL);
-      }
+      setPdfUrl(TEST_PDF_URL);
+      console.log("Using test PDF URL:", TEST_PDF_URL);
       
     } catch (error) {
       toast({
@@ -275,7 +268,7 @@ const DocumentView = () => {
               </div>
               <a 
                 href={pdfUrl} 
-                download={documentData.content_file}
+                download={documentData.content_title}
                 className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
               >
                 <Download size={16} />
