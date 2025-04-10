@@ -39,7 +39,6 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
 
   // Build the correct link for the document detail
   const getDocumentUrl = () => {
-    // Use the correct URL format with query parameters
     return `/requests/${document.id}`;
   };
 
