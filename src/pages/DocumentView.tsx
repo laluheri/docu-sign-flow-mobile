@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,6 +53,8 @@ const DocumentView = () => {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   
+  const DUMMY_PDF_URL = "https://spks.or.id/file/publikasi/Test.pdf";
+  
   useEffect(() => {
     if (!id || !user?.userData) {
       toast({
@@ -102,10 +103,13 @@ const DocumentView = () => {
       
       setDocumentData(docData);
       
-      // Create PDF URL
+      // Create PDF URL - use dummy URL if no content file is available
       if (docData.content_file) {
-        // Construct the PDF URL
         setPdfUrl(`https://ttd.lombokutarakab.go.id/uploads/documents/${docData.content_file}`);
+      } else {
+        // Use the dummy PDF URL when content_file is not available
+        setPdfUrl(DUMMY_PDF_URL);
+        console.log("Using dummy PDF URL:", DUMMY_PDF_URL);
       }
       
     } catch (error) {
@@ -119,10 +123,8 @@ const DocumentView = () => {
     }
   };
   
-  // Set the page title based on document data
   useEffect(() => {
     if (documentData) {
-      // Use window.document instead of document to avoid confusion with our state variable
       window.document.title = `${documentData.content_title} - Document Signing`;
     } else {
       window.document.title = "Document Details - Document Signing";
@@ -134,10 +136,8 @@ const DocumentView = () => {
   };
   
   const handleSign = () => {
-    // Close dialog and mark as signed
     setIsSignDialogOpen(false);
     
-    // In a real app, you would call an API to update the document status
     toast({
       title: "Document signed",
       description: "The document was successfully signed"
@@ -149,10 +149,8 @@ const DocumentView = () => {
   };
   
   const handleReject = () => {
-    // Close dialog and mark as rejected
     setIsRejectDialogOpen(false);
     
-    // In a real app, you would call an API to update the document status
     toast({
       title: "Document rejected",
       description: "The document was rejected"
