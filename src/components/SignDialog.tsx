@@ -48,13 +48,14 @@ const SignDialog = ({ isOpen, onClose, onConfirm, documentId, userId }: SignDial
       const data = await response.json();
       
       if (!response.ok || !data.status) {
-        throw new Error(data.message || "Failed to sign document");
+        // Use the desc field from the API response if available
+        throw new Error(data.desc || data.message || "Failed to sign document");
       }
       
-      // Success
+      // Success - use the desc field for success message
       toast({
         title: "Success",
-        description: "Document has been signed successfully",
+        description: data.desc || "Document has been signed successfully",
       });
       
       onConfirm();
