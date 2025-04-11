@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -102,8 +103,15 @@ const DocumentView = () => {
       
       setDocumentData(docData);
       
-      setPdfUrl(TEST_PDF_URL);
-      console.log("Using test PDF URL:", TEST_PDF_URL);
+      // Update to use the correct endpoint
+      if (docData.content_file) {
+        setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/content_file/${docData.content_file}`);
+        console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/content_file/${docData.content_file}`);
+      } else {
+        // Use test PDF as fallback
+        setPdfUrl(TEST_PDF_URL);
+        console.log("Using test PDF URL:", TEST_PDF_URL);
+      }
       
     } catch (error) {
       toast({
@@ -266,35 +274,38 @@ const DocumentView = () => {
                   title={documentData.content_title}
                 />
               </div>
-              <a 
-                href={pdfUrl} 
-                download={documentData.content_title}
-                className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
-              >
-                <Download size={16} />
-                Download PDF
-              </a>
+              
+              {documentData.content_status === 'active' && documentData.user_to === user?.userData?.user_id && (
+                <div className="flex gap-3 w-full">
+                  <Button 
+                    className="flex-1 gap-2" 
+                    onClick={() => setIsSignDialogOpen(true)}
+                  >
+                    <CheckCircle size={18} />
+                    Sign Document
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 gap-2" 
+                    onClick={() => setIsRejectDialogOpen(true)}
+                  >
+                    <XCircle size={18} />
+                    Reject
+                  </Button>
+                </div>
+              )}
+              
+              {documentData.content_status !== 'active' && (
+                <a 
+                  href={pdfUrl} 
+                  download={documentData.content_title}
+                  className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
+                >
+                  <Download size={16} />
+                  Download PDF
+                </a>
+              )}
             </div>
-          </div>
-        )}
-        
-        {documentData.content_status === 'active' && documentData.user_to === user?.userData?.user_id && (
-          <div className="flex gap-4 mb-4">
-            <Button 
-              className="flex-1 gap-2" 
-              onClick={() => setIsSignDialogOpen(true)}
-            >
-              <CheckCircle size={18} />
-              Sign
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex-1 gap-2" 
-              onClick={() => setIsRejectDialogOpen(true)}
-            >
-              <XCircle size={18} />
-              Reject
-            </Button>
           </div>
         )}
       </div>
