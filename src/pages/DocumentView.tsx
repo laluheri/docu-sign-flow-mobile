@@ -105,8 +105,8 @@ const DocumentView = () => {
       
       // Update to use the correct endpoint
       if (docData.content_file) {
-        setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/content_file/${docData.content_file}`);
-        console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/content_file/${docData.content_file}`);
+        setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/${docData.content_file}`);
+        console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/${docData.content_file}`);
       } else {
         // Use test PDF as fallback
         setPdfUrl(TEST_PDF_URL);
