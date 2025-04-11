@@ -16,6 +16,23 @@ interface UserData {
   user_level_id: number;
   skpd_name: string;
   skpd_generate: string;
+  user_username?: string;
+  nik?: string;
+  user_phone?: string;
+  user_status?: string;
+  user_check?: string;
+  token?: string | null;
+  user_kepala_daerah?: string;
+  user_create_date?: string;
+  user_spesimen?: string | null;
+}
+
+interface PasspressData {
+  pp_id: number;
+  content_id: number;
+  user_id: number;
+  pp_create_date: string;
+  user_ttd: UserData;
 }
 
 interface DocumentData {
@@ -34,12 +51,18 @@ interface DocumentData {
   content_create_date: string;
   user_dari: UserData;
   user_tujuan: UserData;
+  passpress?: PasspressData[];
+}
+
+interface ApiResponseData {
+  current_page: number;
+  data: DocumentData[];
 }
 
 interface ApiResponse {
   status: boolean;
   desc: number;
-  data: DocumentData;
+  data: ApiResponseData;
 }
 
 const DocumentView = () => {
@@ -75,38 +98,56 @@ const DocumentView = () => {
     
     setLoading(true);
     try {
+      // Using the new endpoint format
       const params = new URLSearchParams({
         user_id: user.userData.user_id?.toString() || "",
+        user_level_id: user.userData.user_level_id?.toString() || "",
+        skpd_generate: user.userData.skpd_generate || "",
         content_id: id
       });
       
-      const response = await fetch(`https://ttd.lombokutarakab.go.id/api/getDoc?${params.toString()}`, {
+      const apiUrl = `https://ttd.lombokutarakab.go.id/api/getDoc?${params.toString()}`;
+      console.log("Fetching document from:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Accept": "application/json"
         }
       });
       
-      const responseData = await response.json();
+      const responseData: ApiResponse = await response.json();
       
       if (!response.ok || !responseData.status) {
         throw new Error("Failed to fetch document details");
       }
       
-      const docData = responseData.data.data && responseData.data.data.length > 0 
-        ? responseData.data.data[0] 
-        : null;
-        
-      if (!docData) {
+      const docDataArray = responseData.data?.data;
+      if (!docDataArray || docDataArray.length === 0) {
         throw new Error("Document not found");
       }
       
-      setDocumentData(docData);
+      // Find the document with the matching ID in the returned array
+      const targetDocument = docDataArray.find(doc => doc.content_id.toString() === id);
       
-      // Update to use the correct endpoint
-      if (docData.content_file) {
-        setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/${docData.content_file}`);
-        console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/${docData.content_file}`);
+      if (!targetDocument) {
+        throw new Error("Document not found in the response");
+      }
+      
+      setDocumentData(targetDocument);
+      
+      // Set PDF URL based on document data
+      if (targetDocument.content_file) {
+        // For pending documents, use content_file
+        // For signed documents, use content_file_signed if available
+        const fileToUse = 
+          targetDocument.content_status === 'signed' || 
+          targetDocument.content_status === 'approved' 
+            ? targetDocument.content_file_signed || targetDocument.content_file
+            : targetDocument.content_file;
+            
+        setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/${fileToUse}`);
+        console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/${fileToUse}`);
       } else {
         // Use test PDF as fallback
         setPdfUrl(TEST_PDF_URL);
@@ -205,6 +246,9 @@ const DocumentView = () => {
     );
   }
 
+  const canSignOrReject = documentData.content_status === 'active' && 
+                          documentData.user_to === user?.userData?.user_id;
+
   return (
     <div className="mobile-container">
       <div className="page-content">
@@ -275,7 +319,7 @@ const DocumentView = () => {
                 />
               </div>
               
-              {documentData.content_status === 'active' && documentData.user_to === user?.userData?.user_id && (
+              {canSignOrReject && (
                 <div className="flex gap-3 w-full">
                   <Button 
                     className="flex-1 gap-2" 
