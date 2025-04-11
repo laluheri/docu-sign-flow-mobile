@@ -10,14 +10,16 @@ interface SignDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  documentId?: string | number;
+  userId?: string | number;
 }
 
-const SignDialog = ({ isOpen, onClose, onConfirm }: SignDialogProps) => {
+const SignDialog = ({ isOpen, onClose, onConfirm, documentId, userId }: SignDialogProps) => {
   const [passphrase, setPassphrase] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!passphrase.trim()) {
@@ -31,15 +33,40 @@ const SignDialog = ({ isOpen, onClose, onConfirm }: SignDialogProps) => {
     
     setIsLoading(true);
     
-    // Simulate API call for signature verification
-    setTimeout(() => {
-      setIsLoading(false);
-      onConfirm();
+    try {
+      // Call the actual signature API
+      const apiUrl = `https://ttd.lombokutarakab.go.id/api/ttd?user_id=${userId}&content_id=${documentId}&passphrase=${encodeURIComponent(passphrase)}`;
+      console.log("Calling signature API:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok || !data.status) {
+        throw new Error(data.message || "Failed to sign document");
+      }
+      
+      // Success
       toast({
         title: "Success",
         description: "Document has been signed successfully",
       });
-    }, 1500);
+      
+      onConfirm();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to sign document",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

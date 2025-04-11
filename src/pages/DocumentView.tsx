@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -98,7 +97,6 @@ const DocumentView = () => {
     
     setLoading(true);
     try {
-      // Using the new endpoint format
       const params = new URLSearchParams({
         user_id: user.userData.user_id?.toString() || "",
         user_level_id: user.userData.user_level_id?.toString() || "",
@@ -127,7 +125,6 @@ const DocumentView = () => {
         throw new Error("Document not found");
       }
       
-      // Find the document with the matching ID in the returned array
       const targetDocument = docDataArray.find(doc => doc.content_id.toString() === id);
       
       if (!targetDocument) {
@@ -136,10 +133,7 @@ const DocumentView = () => {
       
       setDocumentData(targetDocument);
       
-      // Set PDF URL based on document data
       if (targetDocument.content_file) {
-        // For pending documents, use content_file
-        // For signed documents, use content_file_signed if available
         const fileToUse = 
           targetDocument.content_status === 'signed' || 
           targetDocument.content_status === 'approved' 
@@ -149,7 +143,6 @@ const DocumentView = () => {
         setPdfUrl(`https://ttd.lombokutarakab.go.id/public/storage/${fileToUse}`);
         console.log("Using PDF URL:", `https://ttd.lombokutarakab.go.id/public/storage/${fileToUse}`);
       } else {
-        // Use test PDF as fallback
         setPdfUrl(TEST_PDF_URL);
         console.log("Using test PDF URL:", TEST_PDF_URL);
       }
@@ -180,10 +173,7 @@ const DocumentView = () => {
   const handleSign = () => {
     setIsSignDialogOpen(false);
     
-    toast({
-      title: "Document signed",
-      description: "The document was successfully signed"
-    });
+    fetchDocumentDetails();
     
     setTimeout(() => {
       navigate("/requests");
@@ -358,6 +348,8 @@ const DocumentView = () => {
         isOpen={isSignDialogOpen} 
         onClose={() => setIsSignDialogOpen(false)}
         onConfirm={handleSign}
+        documentId={id}
+        userId={user?.userData?.user_id}
       />
       
       <RejectDialog 
