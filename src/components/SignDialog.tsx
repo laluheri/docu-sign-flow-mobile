@@ -34,7 +34,7 @@ const SignDialog = ({ isOpen, onClose, onConfirm, documentId, userId }: SignDial
     setIsLoading(true);
     
     try {
-      // Call the actual signature API
+      // Call the signature API
       const apiUrl = `https://ttd.lombokutarakab.go.id/api/ttd?user_id=${userId}&content_id=${documentId}&passphrase=${encodeURIComponent(passphrase)}`;
       console.log("Calling signature API:", apiUrl);
       
