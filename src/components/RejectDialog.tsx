@@ -42,8 +42,8 @@ const RejectDialog = ({ isOpen, onClose, onConfirm, documentId }: RejectDialogPr
     setIsLoading(true);
     
     try {
-      // Call the API to reject the document
-      const apiUrl = `https://ttd.lombokutarakab.go.id/api/ttd?content_id=${documentId}&reason=${encodeURIComponent(reason)}`;
+      // Updated API endpoint from /ttd to /revoke
+      const apiUrl = `https://ttd.lombokutarakab.go.id/api/revoke?content_id=${documentId}&reason=${encodeURIComponent(reason)}`;
       
       const response = await fetch(apiUrl, {
         method: "GET",
