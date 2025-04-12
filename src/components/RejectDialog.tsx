@@ -10,14 +10,15 @@ interface RejectDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  documentId?: string;
 }
 
-const RejectDialog = ({ isOpen, onClose, onConfirm }: RejectDialogProps) => {
+const RejectDialog = ({ isOpen, onClose, onConfirm, documentId }: RejectDialogProps) => {
   const [reason, setReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!reason.trim()) {
@@ -28,18 +29,50 @@ const RejectDialog = ({ isOpen, onClose, onConfirm }: RejectDialogProps) => {
       });
       return;
     }
+
+    if (!documentId) {
+      toast({
+        title: "Error",
+        description: "Document ID is missing",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
-    // Simulate API call for rejection
-    setTimeout(() => {
-      setIsLoading(false);
-      onConfirm();
-      toast({
-        title: "Document Rejected",
-        description: "The document has been rejected successfully",
+    try {
+      // Call the API to reject the document
+      const apiUrl = `https://ttd.lombokutarakab.go.id/api/ttd?content_id=${documentId}&reason=${encodeURIComponent(reason)}`;
+      
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
       });
-    }, 1000);
+      
+      const responseData = await response.json();
+      
+      if (!responseData.status) {
+        throw new Error(responseData.desc || "Failed to reject document");
+      }
+      
+      toast({
+        title: "Success",
+        description: "Document has been rejected successfully",
+      });
+      
+      onConfirm();
+    } catch (error) {
+      toast({
+        title: "Rejection Failed",
+        description: error instanceof Error ? error.message : "Failed to reject document",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

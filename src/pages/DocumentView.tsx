@@ -183,10 +183,7 @@ const DocumentView = () => {
   const handleReject = () => {
     setIsRejectDialogOpen(false);
     
-    toast({
-      title: "Document rejected",
-      description: "The document was rejected"
-    });
+    fetchDocumentDetails();
     
     setTimeout(() => {
       navigate("/requests");
@@ -356,6 +353,7 @@ const DocumentView = () => {
         isOpen={isRejectDialogOpen} 
         onClose={() => setIsRejectDialogOpen(false)}
         onConfirm={handleReject}
+        documentId={id}
       />
     </div>
   );
