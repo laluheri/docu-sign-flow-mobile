@@ -14,7 +14,7 @@ const Index = () => {
     <div className="min-h-screen">
       <header className="flex items-center justify-between border-b p-4">
         <div>
-          <h2 className="font-bold">Document Signing</h2>
+          <h2 className="font-bold">TTD Lombok Utara</h2>
         </div>
         {user && (
           <div className="flex items-center">
