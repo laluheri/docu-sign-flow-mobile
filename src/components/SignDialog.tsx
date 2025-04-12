@@ -34,7 +34,7 @@ const SignDialog = ({ isOpen, onClose, onConfirm, documentId, userId }: SignDial
     setIsLoading(true);
     
     try {
-      // Call the signature API
+      // Call the actual signature API
       const apiUrl = `https://ttd.lombokutarakab.go.id/api/ttd?user_id=${userId}&content_id=${documentId}&passphrase=${encodeURIComponent(passphrase)}`;
       console.log("Calling signature API:", apiUrl);
       
@@ -48,14 +48,13 @@ const SignDialog = ({ isOpen, onClose, onConfirm, documentId, userId }: SignDial
       const data = await response.json();
       
       if (!response.ok || !data.status) {
-        // Use the desc field from the API response if available
-        throw new Error(data.desc || data.message || "Failed to sign document");
+        throw new Error(data.message || "Failed to sign document");
       }
       
-      // Success - use the desc field for success message
+      // Success
       toast({
         title: "Success",
-        description: data.desc || "Document has been signed successfully",
+        description: "Document has been signed successfully",
       });
       
       onConfirm();
