@@ -1,5 +1,5 @@
 
-import { Home, FileText } from "lucide-react";
+import { Home, FileText, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const BottomNavigation = () => {
   const isActive = (path: string) => {
     if (path === "/" && location.pathname === "/") return true;
     if (path === "/requests" && location.pathname.startsWith("/requests")) return true;
+    if (path === "/profile" && location.pathname === "/profile") return true;
     return location.pathname === path;
   };
 
@@ -40,6 +41,19 @@ const BottomNavigation = () => {
           >
             <FileText size={24} />
             <span className="text-xs">Requests</span>
+          </Link>
+
+          <Link
+            to="/profile"
+            className={cn(
+              "flex flex-col items-center space-y-1 px-4 py-2 rounded-md transition-colors",
+              isActive("/profile")
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            )}
+          >
+            <User size={24} />
+            <span className="text-xs">Profile</span>
           </Link>
         </div>
       </div>

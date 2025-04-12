@@ -1,36 +1,32 @@
 
 import { Outlet } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Index = () => {
-  const { logout, user } = useAuth();
-  const { toast } = useToast();
+  const { user } = useAuth();
   
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
-    });
-  };
-
   const displayName = user?.userData?.user_name || user?.userData?.user_username || user?.email || '';
+  const initials = displayName ? displayName.substring(0, 2).toUpperCase() : 'US';
   
   return (
     <div className="min-h-screen">
       <header className="flex items-center justify-between border-b p-4">
         <div>
           <h2 className="font-bold">Document Signing</h2>
-          {user && <p className="text-xs text-muted-foreground">{displayName}</p>}
         </div>
-        <Button variant="ghost" size="sm" onClick={handleLogout}>
-          <LogOut className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
+        {user && (
+          <div className="flex items-center">
+            <div className="text-right mr-2 hidden sm:block">
+              <p className="text-sm font-medium">{displayName}</p>
+              <p className="text-xs text-muted-foreground">{user?.userData?.skpd_name || ''}</p>
+            </div>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            </Avatar>
+          </div>
+        )}
       </header>
       <Outlet />
       <BottomNavigation />
