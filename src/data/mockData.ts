@@ -177,3 +177,52 @@ export const getDashboardStats = (): DashboardStats => {
     total: pending + signed + rejected
   };
 };
+
+export interface ActivityItem {
+  id: string;
+  type: 'signed' | 'rejected' | 'received' | 'updated';
+  documentId: string;
+  documentTitle: string;
+  date: string;
+  user: string;
+  department?: string;
+}
+
+export const recentActivities: ActivityItem[] = [
+  {
+    id: 'act1',
+    type: 'signed',
+    documentId: '2',
+    documentTitle: 'Purchase Agreement',
+    date: '2025-04-12T14:30:00',
+    user: 'Budi Santoso',
+    department: 'Finance Department'
+  },
+  {
+    id: 'act2',
+    type: 'rejected',
+    documentId: '3',
+    documentTitle: 'Confidentiality Agreement',
+    date: '2025-04-11T10:15:00',
+    user: 'Sarah Johnson',
+    department: 'Legal Department'
+  },
+  {
+    id: 'act3',
+    type: 'received',
+    documentId: '4',
+    documentTitle: 'Service Agreement',
+    date: '2025-04-10T16:45:00',
+    user: 'Ahmad Hidayat',
+    department: 'Operations'
+  },
+  {
+    id: 'act4',
+    type: 'updated',
+    documentId: '1',
+    documentTitle: 'Employment Contract',
+    date: '2025-04-09T09:20:00',
+    user: 'Lisa Wong',
+    department: 'HR Department'
+  }
+];
