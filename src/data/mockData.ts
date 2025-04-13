@@ -1,4 +1,3 @@
-
 export interface Document {
   id: string;
   title: string;
@@ -206,23 +205,5 @@ export const recentActivities: ActivityItem[] = [
     date: '2025-04-11T10:15:00',
     user: 'Sarah Johnson',
     department: 'Legal Department'
-  },
-  {
-    id: 'act3',
-    type: 'received',
-    documentId: '4',
-    documentTitle: 'Service Agreement',
-    date: '2025-04-10T16:45:00',
-    user: 'Ahmad Hidayat',
-    department: 'Operations'
-  },
-  {
-    id: 'act4',
-    type: 'updated',
-    documentId: '1',
-    documentTitle: 'Employment Contract',
-    date: '2025-04-09T09:20:00',
-    user: 'Lisa Wong',
-    department: 'HR Department'
   }
 ];
