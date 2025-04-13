@@ -42,14 +42,18 @@ const RejectDialog = ({ isOpen, onClose, onConfirm, documentId }: RejectDialogPr
     setIsLoading(true);
     
     try {
-      // Updated API endpoint from /ttd to /revoke
-      const apiUrl = `https://ttd.lombokutarakab.go.id/api/revoke?content_id=${documentId}&reason=${encodeURIComponent(reason)}`;
+      const apiUrl = `https://ttd.lombokutarakab.go.id/api/revoke`;
       
       const response = await fetch(apiUrl, {
-        method: "GET",
+        method: "POST",
         headers: {
-          "Accept": "application/json"
-        }
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          content_id: documentId,
+          reason: reason
+        })
       });
       
       const responseData = await response.json();
