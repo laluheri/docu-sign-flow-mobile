@@ -50,7 +50,7 @@ const Login = () => {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 rounded-lg border bg-card p-6 shadow-md">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Document Signing</h1>
+          <h1 className="text-2xl font-bold">TTD Lombok Utara</h1>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>
 
