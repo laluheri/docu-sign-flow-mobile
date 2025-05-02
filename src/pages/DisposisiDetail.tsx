@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ const DisposisiDetail = () => {
     
     setLoading(true);
     try {
+      // Updated the parameter name to dis_id to match the API endpoint requirements
       const response = await fetch(`https://ttd.lombokutarakab.go.id/api/detailDis?dis_id=${id}`);
       
       if (!response.ok) {
@@ -82,6 +84,11 @@ const DisposisiDetail = () => {
       }
       
       setDisposisiData(data.data);
+
+      // Add pathDoc from the top level of the response to the data object
+      if (data.pathDoc) {
+        setDisposisiData(prev => prev ? { ...prev, pathDoc: data.pathDoc } : null);
+      }
     } catch (error) {
       console.error("Error fetching disposisi details:", error);
       toast({
