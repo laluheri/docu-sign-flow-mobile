@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import RequestList from "./pages/RequestList";
 import DocumentView from "./pages/DocumentView";
 import DisposisiList from "./pages/DisposisiList";
+import DisposisiDetail from "./pages/DisposisiDetail";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -59,6 +60,11 @@ const AppRoutes = () => {
       <Route path="/requests/:id" element={
         <ProtectedRoute>
           <DocumentView />
+        </ProtectedRoute>
+      } />
+      <Route path="/disposisi/:id" element={
+        <ProtectedRoute>
+          <DisposisiDetail />
         </ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />

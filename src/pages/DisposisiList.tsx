@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import { Loader2, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { useNavigate } from "react-router-dom";
 
 interface DisposisiItem {
   dis_id: number;
@@ -54,7 +54,7 @@ const fetchDisposisiData = async (userId: number, page: number = 1): Promise<Dis
   return response.json();
 };
 
-const DisposisiCard = ({ item }: { item: DisposisiItem }) => {
+const DisposisiCard = ({ item, onClick }: { item: DisposisiItem; onClick: () => void }) => {
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), 'dd MMM yyyy');
@@ -82,7 +82,7 @@ const DisposisiCard = ({ item }: { item: DisposisiItem }) => {
   };
 
   return (
-    <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+    <Card className="hover:border-primary/50 transition-colors cursor-pointer" onClick={onClick}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="bg-primary/10 p-2 rounded-md mt-1">
@@ -113,6 +113,7 @@ const DisposisiCard = ({ item }: { item: DisposisiItem }) => {
 const DisposisiList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const userId = user?.userData?.user_id;
@@ -147,6 +148,10 @@ const DisposisiList = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleDisposisiClick = (id: number) => {
+    navigate(`/disposisi/${id}`);
   };
 
   const renderPagination = () => {
@@ -218,7 +223,11 @@ const DisposisiList = () => {
           <>
             <div className="flex flex-col gap-4">
               {disposisiItems.map((item) => (
-                <DisposisiCard key={item.dis_id} item={item} />
+                <DisposisiCard 
+                  key={item.dis_id} 
+                  item={item} 
+                  onClick={() => handleDisposisiClick(item.dis_id)}
+                />
               ))}
             </div>
             {renderPagination()}
