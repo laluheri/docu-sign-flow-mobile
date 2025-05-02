@@ -4,7 +4,9 @@ import DocumentCard from "@/components/DocumentCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { debounce } from "lodash";
 
 interface UserFrom {
   user_name: string;
@@ -35,10 +37,12 @@ interface ApiResponse {
 
 const RequestList = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -46,6 +50,20 @@ const RequestList = () => {
     document.title = "Requests - Document Signing";
     fetchDocuments(currentPage);
   }, [currentPage]);
+
+  useEffect(() => {
+    // Filter documents when search term changes
+    if (searchTerm.trim() === "") {
+      setFilteredDocuments(documents);
+    } else {
+      const term = searchTerm.toLowerCase();
+      const filtered = documents.filter(doc => 
+        doc.content_title.toLowerCase().includes(term) || 
+        doc.user_dari?.user_name?.toLowerCase().includes(term)
+      );
+      setFilteredDocuments(filtered);
+    }
+  }, [searchTerm, documents]);
 
   const fetchDocuments = async (page: number) => {
     if (!user?.userData) return;
@@ -74,6 +92,7 @@ const RequestList = () => {
       }
 
       setDocuments(data.data.data || []);
+      setFilteredDocuments(data.data.data || []);
       setTotalPages(data.data.last_page || 1);
       setNotificationCount(data.desc);
     } catch (error) {
@@ -86,6 +105,13 @@ const RequestList = () => {
       setLoading(false);
     }
   };
+
+  // Handle search input changes with debounce to avoid too many re-renders
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const debouncedHandleSearchChange = debounce(handleSearchChange, 300);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -152,14 +178,24 @@ const RequestList = () => {
           </p>
         </div>
 
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input 
+            placeholder="Search documents..." 
+            className="pl-10"
+            onChange={debouncedHandleSearchChange}
+            defaultValue={searchTerm}
+          />
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : documents.length > 0 ? (
+        ) : filteredDocuments.length > 0 ? (
           <>
             <div className="flex flex-col gap-4">
-              {documents.map((doc) => (
+              {filteredDocuments.map((doc) => (
                 <DocumentCard 
                   key={doc.content_id} 
                   document={{
@@ -176,7 +212,9 @@ const RequestList = () => {
           </>
         ) : (
           <div className="bg-muted/50 p-6 rounded-lg text-center">
-            <p className="text-muted-foreground">No documents found</p>
+            <p className="text-muted-foreground">
+              {searchTerm ? "No matching documents found" : "No documents found"}
+            </p>
           </div>
         )}
       </div>
