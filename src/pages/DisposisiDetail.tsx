@@ -71,7 +71,7 @@ const DisposisiDetail = () => {
     setLoading(true);
     try {
       // Updated the parameter name to dis_id to match the API endpoint requirements
-      const response = await fetch(`https://ttd.lombokutarakab.go.id/api/detailDis?dis_id=${id}`);
+      const response = await fetch(`https://ttd.lombokutarakab.go.id/api/detailDis?dis_id=${dis_id}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch disposisi details");
