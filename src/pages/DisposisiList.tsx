@@ -1,13 +1,15 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 interface DisposisiItem {
   dis_id: number;
@@ -113,6 +115,7 @@ const DisposisiCard = ({ item, onClick }: { item: DisposisiItem; onClick: () => 
 const DisposisiList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -143,15 +146,33 @@ const DisposisiList = () => {
     });
   }
   
-  const disposisiItems = data?.data?.data || [];
+  const allDisposisiItems = data?.data?.data || [];
   const notificationCount = data?.desc || 0;
+
+  // Filter disposisi items based on search query
+  const disposisiItems = searchQuery.trim() !== "" 
+    ? allDisposisiItems.filter(item => {
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        return (
+          item.dis_things.toLowerCase().includes(lowerCaseQuery) ||
+          item.dis_from_letter.toLowerCase().includes(lowerCaseQuery) ||
+          item.dis_no_letter.toLowerCase().includes(lowerCaseQuery) ||
+          (item.dis_instruction && item.dis_instruction.toLowerCase().includes(lowerCaseQuery))
+        );
+      })
+    : allDisposisiItems;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setSearchQuery(""); // Reset search when changing page
   };
 
   const handleDisposisiClick = (id: number) => {
     navigate(`/disposisi/${id}`);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const renderPagination = () => {
@@ -215,6 +236,19 @@ const DisposisiList = () => {
           </p>
         </div>
 
+        <div className="mb-4 relative">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input 
+              type="search" 
+              placeholder="Search disposisi..." 
+              className="pl-10" 
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -230,11 +264,15 @@ const DisposisiList = () => {
                 />
               ))}
             </div>
-            {renderPagination()}
+            {searchQuery.trim() === "" && renderPagination()}
           </>
         ) : (
           <div className="bg-muted/50 p-6 rounded-lg text-center">
-            <p className="text-muted-foreground">No disposisi items found</p>
+            <p className="text-muted-foreground">
+              {searchQuery.trim() !== "" 
+                ? "No disposisi matching your search query"
+                : "No disposisi items found"}
+            </p>
           </div>
         )}
       </div>
