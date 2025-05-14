@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
@@ -11,6 +12,8 @@ import { Loader2, Send, Check, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDisposisiDetail } from "@/hooks/useDisposisiDetail";
 
 interface Recipient {
   user_id: number;
@@ -38,6 +41,8 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { disposisiData } = useDisposisiDetail(disposisiId.toString());
   
   const form = useForm<ForwardFormValues>({
     resolver: zodResolver(forwardFormSchema),
@@ -50,17 +55,25 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
 
   // Fetch recipients when drawer opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && disposisiData) {
       fetchRecipients();
     }
-  }, [isOpen]);
+  }, [isOpen, disposisiData]);
 
   const fetchRecipients = async () => {
+    if (!disposisiData || !user?.userData?.user_id) return;
+    
+    const skpdId = disposisiData.skpd_generate;
+    const userId = user.userData.user_id;
+    
     setIsLoading(true);
     try {
-      const response = await fetch("https://ttd.lombokutarakab.go.id/api/getUser", {
-        method: "GET",
-      });
+      const response = await fetch(
+        `https://ttd.lombokutarakab.go.id/api/nameOnDetail?user_id=${userId}&skpd_id=${skpdId}`, 
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch recipients");
