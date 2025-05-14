@@ -1,25 +1,19 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Send, Check, Search } from "lucide-react";
+import { Loader2, Search, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
 import { useDisposisiDetail } from "@/hooks/useDisposisiDetail";
-
-interface Recipient {
-  user_id: number;
-  user_name: string;
-  skpd_name: string;
-}
+import { forwardFormSchema, type ForwardFormValues } from "@/schemas/disposisiSchemas";
+import { RecipientList } from "./RecipientList";
+import { useRecipientsList } from "@/hooks/useRecipientsList";
 
 interface ForwardDisposisiDrawerProps {
   isOpen: boolean;
@@ -28,21 +22,11 @@ interface ForwardDisposisiDrawerProps {
   disposisiId: number;
 }
 
-const forwardFormSchema = z.object({
-  recipients: z.array(z.number()).min(1, "Select at least one recipient"),
-  instruction: z.string().min(1, "Instruction is required"),
-  passphrase: z.string().min(1, "Passphrase is required"),
-});
-
-type ForwardFormValues = z.infer<typeof forwardFormSchema>;
-
 export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId }: ForwardDisposisiDrawerProps) => {
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { user } = useAuth();
   const { disposisiData } = useDisposisiDetail(disposisiId.toString());
+  const { recipients, isLoading } = useRecipientsList(disposisiData);
   
   const form = useForm<ForwardFormValues>({
     resolver: zodResolver(forwardFormSchema),
@@ -53,66 +37,16 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
     },
   });
 
-  // Fetch recipients when drawer opens
-  useEffect(() => {
-    if (isOpen && disposisiData) {
-      fetchRecipients();
-    }
-  }, [isOpen, disposisiData]);
-
-  const fetchRecipients = async () => {
-    if (!disposisiData || !user?.userData?.user_id) return;
-    
-    const skpdId = disposisiData.skpd_generate;
-    const userId = user.userData.user_id;
-    
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `https://ttd.lombokutarakab.go.id/api/nameOnDetail`, 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_id: userId,
-            skpd_id: skpdId
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch recipients");
-      }
-
-      const data = await response.json();
-      if (data.status && Array.isArray(data.data)) {
-        setRecipients(data.data);
-      } else {
-        throw new Error("Invalid response format");
-      }
-    } catch (error) {
-      console.error("Error fetching recipients:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load recipient list",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filteredRecipients = searchQuery.trim() === ""
-    ? recipients
-    : recipients.filter(recipient => 
-        recipient.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipient.skpd_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleSelectRecipient = (recipientId: number, selected: boolean) => {
+    const currentRecipients = form.getValues("recipients");
+    const newRecipients = selected
+      ? [...currentRecipients, recipientId]
+      : currentRecipients.filter((id) => id !== recipientId);
+    form.setValue("recipients", newRecipients, { shouldValidate: true });
   };
 
   const handleSubmit = async (values: ForwardFormValues) => {
@@ -161,57 +95,13 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Recipients</FormLabel>
-                    <FormControl>
-                      <ScrollArea className="border rounded-md p-2 h-48">
-                        {isLoading ? (
-                          <div className="flex justify-center py-4">
-                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                          </div>
-                        ) : filteredRecipients.length > 0 ? (
-                          filteredRecipients.map((recipient) => (
-                            <div 
-                              key={recipient.user_id} 
-                              className={`flex items-center mb-2 p-2 rounded-md ${
-                                field.value.includes(recipient.user_id) 
-                                  ? 'bg-primary/10 border border-primary/30' 
-                                  : 'hover:bg-muted/50'
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`recipient-${recipient.user_id}`}
-                                value={recipient.user_id}
-                                className="mr-2"
-                                onChange={(e) => {
-                                  const value = Number(e.target.value);
-                                  const newRecipients = e.target.checked
-                                    ? [...field.value, value]
-                                    : field.value.filter((id) => id !== value);
-                                  field.onChange(newRecipients);
-                                }}
-                                checked={field.value.includes(recipient.user_id)}
-                              />
-                              <label 
-                                htmlFor={`recipient-${recipient.user_id}`} 
-                                className="text-sm flex-1 cursor-pointer"
-                              >
-                                <span className="font-medium">{recipient.user_name}</span>
-                                <br />
-                                <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
-                              </label>
-                              {field.value.includes(recipient.user_id) && (
-                                <Check className="h-4 w-4 text-primary" />
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-center py-6 text-muted-foreground">
-                            No recipients found
-                          </div>
-                        )}
-                      </ScrollArea>
-                    </FormControl>
-                    <FormMessage />
+                    <RecipientList
+                      recipients={recipients}
+                      selectedRecipients={field.value}
+                      isLoading={isLoading}
+                      searchQuery={searchQuery}
+                      onSelectRecipient={handleSelectRecipient}
+                    />
                   </FormItem>
                 )}
               />
@@ -222,14 +112,11 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Instructions</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Enter instructions for the recipients"
-                        className="resize-none min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <Textarea 
+                      placeholder="Enter instructions for the recipients"
+                      className="resize-none min-h-[100px]"
+                      {...field}
+                    />
                   </FormItem>
                 )}
               />
@@ -240,14 +127,11 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Passphrase</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Enter your passphrase"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <Input 
+                      type="password" 
+                      placeholder="Enter your passphrase"
+                      {...field}
+                    />
                   </FormItem>
                 )}
               />
