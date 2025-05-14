@@ -68,23 +68,23 @@ const DisposisiCard = ({ item, onClick }: { item: DisposisiItem; onClick: () => 
   const getTypeStyle = (type: string) => {
     switch (type.toLowerCase()) {
       case 'segera':
-        return 'bg-amber-100 text-amber-700';
+        return 'bg-amber-100 text-amber-700 border border-amber-200';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 
   const getStatusStyle = (status: string) => {
     switch (status.toLowerCase()) {
       case 'dispath':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-100 text-green-700 border border-green-200';
       default:
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-100 text-blue-700 border border-blue-200';
     }
   };
 
   return (
-    <Card className="hover:border-primary/50 transition-colors cursor-pointer" onClick={onClick}>
+    <Card className="hover:border-primary/50 transition-colors cursor-pointer shadow-sm" onClick={onClick}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="bg-primary/10 p-2 rounded-md mt-1">
@@ -232,7 +232,11 @@ const DisposisiList = () => {
           <h1 className="text-2xl font-bold">Disposisi</h1>
           <p className="text-muted-foreground">
             Documents requiring your attention
-            {notificationCount > 0 && ` (${notificationCount} unread)`}
+            {notificationCount > 0 && (
+              <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary border-primary/20">
+                {notificationCount} unread
+              </Badge>
+            )}
           </p>
         </div>
 
@@ -242,7 +246,7 @@ const DisposisiList = () => {
             <Input 
               type="search" 
               placeholder="Search disposisi..." 
-              className="pl-10" 
+              className="pl-10 shadow-sm" 
               value={searchQuery}
               onChange={handleSearchChange}
             />
@@ -267,7 +271,8 @@ const DisposisiList = () => {
             {searchQuery.trim() === "" && renderPagination()}
           </>
         ) : (
-          <div className="bg-muted/50 p-6 rounded-lg text-center">
+          <div className="bg-muted/50 p-6 rounded-lg text-center border border-border shadow-sm">
+            <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-muted-foreground">
               {searchQuery.trim() !== "" 
                 ? "No disposisi matching your search query"

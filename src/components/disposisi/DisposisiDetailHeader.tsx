@@ -11,11 +11,11 @@ interface DisposisiDetailHeaderProps {
 export const DisposisiDetailHeader = ({ title, from, onBack }: DisposisiDetailHeaderProps) => {
   return (
     <div className="flex items-center mb-6">
-      <Button variant="ghost" size="icon" onClick={onBack} className="mr-2">
+      <Button variant="ghost" size="icon" onClick={onBack} className="mr-2 hover:bg-primary/10">
         <ArrowLeft size={20} />
       </Button>
       <div>
-        <h1 className="text-xl font-bold">{title}</h1>
+        <h1 className="text-xl font-bold line-clamp-1">{title}</h1>
         <p className="text-sm text-muted-foreground">From: {from}</p>
       </div>
     </div>

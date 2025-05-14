@@ -107,12 +107,12 @@ const DisposisiDetail = () => {
           onBack={handleBack}
         />
         
-        <div className="mb-4">
+        <div className="mb-6">
           <Button 
             onClick={() => setIsForwardDrawerOpen(true)} 
-            className="w-full"
+            className="w-full flex items-center justify-center gap-2 shadow-sm"
           >
-            <Send className="mr-2 h-4 w-4" /> Forward Disposition
+            <Send className="h-4 w-4" /> Forward Disposition
           </Button>
         </div>
         
