@@ -69,9 +69,16 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://ttd.lombokutarakab.go.id/api/nameOnDetail?user_id=${userId}&skpd_id=${skpdId}`, 
+        `https://ttd.lombokutarakab.go.id/api/nameOnDetail`, 
         {
-          method: "GET",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            skpd_id: skpdId
+          })
         }
       );
 
