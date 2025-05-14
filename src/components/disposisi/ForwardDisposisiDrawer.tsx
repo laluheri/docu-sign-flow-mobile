@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
@@ -8,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Send, Check } from "lucide-react";
+import { Loader2, Send, Check, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -118,15 +117,19 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <div className="sticky top-0 z-10 mb-2">
-                <Input
-                  placeholder="Search recipients..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="mb-2"
-                  prefix={<Search className="h-4 w-4 text-muted-foreground" />}
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <Input
+                    placeholder="Search recipients..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="pl-9"
+                  />
+                </div>
                 {selectedCount > 0 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs mt-2">
                     {selectedCount} recipient{selectedCount > 1 ? 's' : ''} selected
                   </Badge>
                 )}
