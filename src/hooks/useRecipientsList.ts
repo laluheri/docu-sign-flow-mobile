@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -9,14 +9,18 @@ interface Recipient {
   skpd_name: string;
 }
 
-export const useRecipientsList = (disposisiData: any) => {
+interface DisposisiData {
+  skpd_generate?: string;
+}
+
+export const useRecipientsList = (disposisiData: DisposisiData | null) => {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchRecipients = async () => {
-    if (!disposisiData || !user?.userData?.user_id) return;
+  const fetchRecipients = useCallback(async () => {
+    if (!disposisiData?.skpd_generate || !user?.userData?.user_id) return;
     
     const skpdId = disposisiData.skpd_generate;
     const userId = user.userData.user_id;
@@ -57,13 +61,13 @@ export const useRecipientsList = (disposisiData: any) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [disposisiData, user, toast]);
 
   useEffect(() => {
-    if (disposisiData) {
+    if (disposisiData?.skpd_generate) {
       fetchRecipients();
     }
-  }, [disposisiData, user?.userData?.user_id, toast, fetchRecipients]); // Add all dependencies
+  }, [disposisiData, fetchRecipients]);
 
   return {
     recipients,

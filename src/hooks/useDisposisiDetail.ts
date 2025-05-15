@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -40,15 +41,6 @@ export const useDisposisiDetail = (id: string | undefined) => {
     }
   };
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-    
-    fetchDisposisiDetails();
-  }, [id]);
-
   const fetchDisposisiDetails = async () => {
     if (!id) return;
     
@@ -89,6 +81,15 @@ export const useDisposisiDetail = (id: string | undefined) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    
+    fetchDisposisiDetails();
+  }, [id]);
 
   return {
     loading,

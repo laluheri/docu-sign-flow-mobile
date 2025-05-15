@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Search, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useDisposisiDetail } from "@/hooks/useDisposisiDetail";
 import { forwardFormSchema, type ForwardFormValues } from "@/schemas/disposisiSchemas";
 import { RecipientList } from "./RecipientList";
 import { useRecipientsList } from "@/hooks/useRecipientsList";
@@ -25,8 +24,7 @@ interface ForwardDisposisiDrawerProps {
 export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId }: ForwardDisposisiDrawerProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { disposisiData } = useDisposisiDetail(disposisiId.toString());
-  const { recipients, isLoading } = useRecipientsList(disposisiData);
+  const { recipients, isLoading } = useRecipientsList({ skpd_generate: String(disposisiId) });
   
   const form = useForm<ForwardFormValues>({
     resolver: zodResolver(forwardFormSchema),
