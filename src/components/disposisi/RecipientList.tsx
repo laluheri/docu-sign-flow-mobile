@@ -1,16 +1,17 @@
 
 import { useRecipientsList } from "@/hooks/useRecipientsList";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface RecipientListProps {
   skpdGenerate: string | number | undefined;
-  selectedRecipients: number[];
-  onRecipientToggle: (userId: number) => void;
+  selectedRecipient: number | null;
+  onRecipientSelect: (userId: number) => void;
 }
 
 export const RecipientList = ({
   skpdGenerate,
-  selectedRecipients,
-  onRecipientToggle
+  selectedRecipient,
+  onRecipientSelect
 }: RecipientListProps) => {
   const { recipients, isLoading } = useRecipientsList({ skpd_generate: skpdGenerate });
 
@@ -31,28 +32,32 @@ export const RecipientList = ({
   }
 
   return (
-    <div className="border rounded-md divide-y max-h-60 overflow-y-auto">
-      {recipients.map((recipient) => (
-        <div 
-          key={recipient.user_id} 
-          className="flex items-center p-2 hover:bg-muted"
-        >
-          <input 
-            type="checkbox" 
-            id={`recipient-${recipient.user_id}`}
-            checked={selectedRecipients.includes(recipient.user_id)}
-            onChange={() => onRecipientToggle(recipient.user_id)}
-            className="mr-3 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-          />
-          <label 
-            htmlFor={`recipient-${recipient.user_id}`}
-            className="flex-1 cursor-pointer"
+    <div className="border rounded-md p-2 max-h-60 overflow-y-auto">
+      <RadioGroup 
+        value={selectedRecipient?.toString()} 
+        onValueChange={(value) => onRecipientSelect(parseInt(value, 10))}
+        className="space-y-1"
+      >
+        {recipients.map((recipient) => (
+          <div 
+            key={recipient.user_id} 
+            className="flex items-center hover:bg-muted p-2 rounded-md"
           >
-            <div className="text-sm font-medium">{recipient.user_name}</div>
-            <div className="text-xs text-muted-foreground">{recipient.skpd_name}</div>
-          </label>
-        </div>
-      ))}
+            <RadioGroupItem 
+              value={recipient.user_id.toString()} 
+              id={`recipient-${recipient.user_id}`}
+              className="mr-3"
+            />
+            <label 
+              htmlFor={`recipient-${recipient.user_id}`}
+              className="flex-1 cursor-pointer text-sm"
+            >
+              <div className="font-medium">{recipient.user_name}</div>
+              <div className="text-xs text-muted-foreground">{recipient.skpd_name}</div>
+            </label>
+          </div>
+        ))}
+      </RadioGroup>
     </div>
   );
 };

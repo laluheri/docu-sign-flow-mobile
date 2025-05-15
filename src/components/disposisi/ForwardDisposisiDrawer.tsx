@@ -21,28 +21,22 @@ export const ForwardDisposisiDrawer = ({
 }: ForwardDisposisiDrawerProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [selectedRecipients, setSelectedRecipients] = useState<number[]>([]);
+  const [selectedRecipient, setSelectedRecipient] = useState<number | null>(null);
   const [instruction, setInstruction] = useState("");
   const [passphrase, setPassphrase] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRecipientToggle = (userId: number) => {
-    setSelectedRecipients(prev => {
-      if (prev.includes(userId)) {
-        return prev.filter(id => id !== userId);
-      } else {
-        return [...prev, userId];
-      }
-    });
+  const handleRecipientSelect = (userId: number) => {
+    setSelectedRecipient(userId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (selectedRecipients.length === 0) {
+    if (selectedRecipient === null) {
       toast({
         title: "Error",
-        description: "Please select at least one recipient",
+        description: "Please select a recipient",
         variant: "destructive",
       });
       return;
@@ -71,7 +65,7 @@ export const ForwardDisposisiDrawer = ({
         body: JSON.stringify({
           dis_id: disposisiId,
           user_id: user.userData.user_id,
-          recipients: selectedRecipients,
+          recipients: [selectedRecipient], // Send as array with single recipient
           instruction,
           passphrase
         }),
@@ -124,15 +118,17 @@ export const ForwardDisposisiDrawer = ({
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-2">Recipients</h3>
+                <h3 className="text-sm font-medium mb-2">Select Recipient</h3>
                 <RecipientList
                   skpdGenerate={skpdGenerate}
-                  selectedRecipients={selectedRecipients}
-                  onRecipientToggle={handleRecipientToggle}
+                  selectedRecipient={selectedRecipient}
+                  onRecipientSelect={handleRecipientSelect}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Selected: {selectedRecipients.length} recipient{selectedRecipients.length !== 1 ? 's' : ''}
-                </p>
+                {selectedRecipient !== null && (
+                  <p className="text-xs text-primary mt-1">
+                    A recipient is selected
+                  </p>
+                )}
               </div>
               
               <div>
@@ -144,7 +140,7 @@ export const ForwardDisposisiDrawer = ({
                   value={instruction}
                   onChange={(e) => setInstruction(e.target.value)}
                   className="w-full min-h-[100px] p-2 border rounded-md"
-                  placeholder="Add instructions for the recipients..."
+                  placeholder="Add instructions for the recipient..."
                 />
               </div>
               
@@ -168,7 +164,7 @@ export const ForwardDisposisiDrawer = ({
               <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || selectedRecipients.length === 0}>
+              <Button type="submit" disabled={isSubmitting || selectedRecipient === null}>
                 {isSubmitting ? (
                   <>
                     <span className="animate-spin mr-2">⏳</span>
