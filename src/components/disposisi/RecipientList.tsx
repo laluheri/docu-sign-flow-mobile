@@ -34,7 +34,7 @@ export const RecipientList = ({
   return (
     <div className="border rounded-md p-2 max-h-60 overflow-y-auto">
       <RadioGroup 
-        value={selectedRecipient?.toString()} 
+        value={selectedRecipient !== null ? selectedRecipient.toString() : undefined} 
         onValueChange={(value) => onRecipientSelect(parseInt(value, 10))}
         className="space-y-1"
       >
