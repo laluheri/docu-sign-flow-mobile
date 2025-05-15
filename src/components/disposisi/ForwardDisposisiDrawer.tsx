@@ -60,6 +60,7 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
 
   const selectedCount = form.watch("recipients").length;
 
+  // Return null if not open
   if (!isOpen) return null;
 
   return (
@@ -72,7 +73,7 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
         <div className="px-4 py-3 overflow-y-auto">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <div className="sticky top-0 z-10 mb-2">
+              <div className="sticky top-0 z-10 mb-2 bg-background pt-1 pb-2">
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2">
                     <Search className="h-4 w-4 text-muted-foreground" />

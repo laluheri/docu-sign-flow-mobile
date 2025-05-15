@@ -101,6 +101,7 @@ const DisposisiDetail = () => {
     return <DisposisiNotFound onBack={handleBack} />;
   }
 
+  // Ensure disposisiId is a number
   const disposisiNumericId = id ? parseInt(id, 10) : 0;
 
   return (
@@ -142,12 +143,14 @@ const DisposisiDetail = () => {
         )}
       </div>
 
-      <ForwardDisposisiDrawer 
-        isOpen={isForwardDrawerOpen}
-        onClose={() => setIsForwardDrawerOpen(false)}
-        onForward={handleForwardDisposisi}
-        disposisiId={disposisiNumericId}
-      />
+      {isForwardDrawerOpen && (
+        <ForwardDisposisiDrawer 
+          isOpen={isForwardDrawerOpen}
+          onClose={() => setIsForwardDrawerOpen(false)}
+          onForward={handleForwardDisposisi}
+          disposisiId={disposisiNumericId}
+        />
+      )}
     </div>
   );
 };

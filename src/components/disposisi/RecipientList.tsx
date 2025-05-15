@@ -40,11 +40,11 @@ export const RecipientList = ({
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : filteredRecipients.length > 0 ? (
-            <div>
+            <div className="space-y-2">
               {filteredRecipients.map((recipient) => (
                 <div 
                   key={recipient.user_id} 
-                  className={`flex items-center mb-2 p-2 rounded-md ${
+                  className={`flex items-center p-2 rounded-md ${
                     selectedRecipients.includes(recipient.user_id) 
                       ? 'bg-primary/10 border border-primary/30' 
                       : 'hover:bg-muted/50'

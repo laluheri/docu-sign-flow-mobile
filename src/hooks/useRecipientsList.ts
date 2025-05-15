@@ -22,7 +22,8 @@ export const useRecipientsList = (params: UseRecipientsListParams) => {
   const fetchRecipients = useCallback(async () => {
     if (!params?.skpd_generate || !user?.userData?.user_id) return;
     
-    const skpdId = params.skpd_generate;
+    // Convert skpdId to string if it's a number
+    const skpdId = String(params.skpd_generate);
     const userId = user.userData.user_id;
     
     setIsLoading(true);
@@ -65,10 +66,8 @@ export const useRecipientsList = (params: UseRecipientsListParams) => {
   }, [params?.skpd_generate, user?.userData?.user_id, toast]);
 
   useEffect(() => {
-    if (params?.skpd_generate) {
-      fetchRecipients();
-    }
-  }, [params?.skpd_generate, fetchRecipients]);
+    fetchRecipients();
+  }, [fetchRecipients]);
 
   return {
     recipients,

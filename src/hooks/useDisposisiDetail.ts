@@ -64,12 +64,12 @@ export const useDisposisiDetail = (id: string | undefined) => {
         throw new Error("Invalid response from server");
       }
       
-      setDisposisiData(data.data);
-
-      // Add pathDoc from the top level of the response to the data object
-      if (data.pathDoc) {
-        setDisposisiData(prev => prev ? { ...prev, pathDoc: data.pathDoc } : null);
-      }
+      const disposisiWithPath = {
+        ...data.data,
+        pathDoc: data.pathDoc || null
+      };
+      
+      setDisposisiData(disposisiWithPath);
     } catch (error) {
       console.error("Error fetching disposisi details:", error);
       toast({
@@ -90,7 +90,7 @@ export const useDisposisiDetail = (id: string | undefined) => {
     }
     
     fetchDisposisiDetails();
-  }, [id]); // toast is stable, so we don't need it in the dependency array
+  }, [id]); // Removed toast from dependencies as it should be stable
 
   return {
     loading,
