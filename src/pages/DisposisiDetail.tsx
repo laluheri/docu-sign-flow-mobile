@@ -135,16 +135,16 @@ const DisposisiDetail = () => {
             documentTitle={disposisiData.dis_things}
           />
         )}
-        
-        {isForwardDrawerOpen && (
-          <ForwardDisposisiDrawer 
-            isOpen={isForwardDrawerOpen}
-            onClose={() => setIsForwardDrawerOpen(false)}
-            onForward={handleForwardDisposisi}
-            disposisiId={Number(id)}
-          />
-        )}
       </div>
+
+      {isForwardDrawerOpen && (
+        <ForwardDisposisiDrawer 
+          isOpen={isForwardDrawerOpen}
+          onClose={() => setIsForwardDrawerOpen(false)}
+          onForward={handleForwardDisposisi}
+          disposisiId={Number(id)}
+        />
+      )}
     </div>
   );
 };
