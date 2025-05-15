@@ -44,57 +44,9 @@ const DisposisiDetail = () => {
   const handleBack = () => {
     navigate("/disposisi");
   };
-  
-  const handleForwardDisposisi = async (formData: { recipients: number[], instruction: string, passphrase: string }) => {
-    try {
-      if (!id || !user?.userData?.user_id) {
-        throw new Error("Missing required data");
-      }
-      
-      const response = await fetch("https://ttd.lombokutarakab.go.id/api/forwardDisposisi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dis_id: id,
-          user_id: user.userData.user_id,
-          recipients: formData.recipients,
-          instruction: formData.instruction,
-          passphrase: formData.passphrase
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok || !data.status) {
-        throw new Error(data.desc || "Failed to forward disposition");
-      }
-
-      toast({
-        title: "Success",
-        description: "Disposition has been forwarded successfully",
-      });
-      
-      setIsForwardDrawerOpen(false);
-      
-      // Refresh the page or fetch updated data
-      setTimeout(() => {
-        navigate("/disposisi");
-      }, 1500);
-      
-    } catch (error) {
-      console.error("Error forwarding disposition:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to forward disposition",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (loading) {
-    return <DisposisiLoadingState />;
+    return <DisposisiLoadingState onBack={handleBack} />;
   }
 
   if (!disposisiData) {
@@ -147,8 +99,8 @@ const DisposisiDetail = () => {
         <ForwardDisposisiDrawer 
           isOpen={isForwardDrawerOpen}
           onClose={() => setIsForwardDrawerOpen(false)}
-          onForward={handleForwardDisposisi}
           disposisiId={disposisiNumericId}
+          skpdGenerate={disposisiData.skpd_generate}
         />
       )}
     </div>

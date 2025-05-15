@@ -1,87 +1,58 @@
 
-import { FormControl, FormMessage } from "@/components/ui/form";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, Loader2 } from "lucide-react";
-
-interface Recipient {
-  user_id: number;
-  user_name: string;
-  skpd_name: string;
-}
+import { useRecipientsList } from "@/hooks/useRecipientsList";
 
 interface RecipientListProps {
-  recipients: Recipient[];
+  skpdGenerate: string | number | undefined;
   selectedRecipients: number[];
-  isLoading: boolean;
-  searchQuery: string;
-  onSelectRecipient: (recipientId: number, selected: boolean) => void;
+  onRecipientToggle: (userId: number) => void;
 }
 
 export const RecipientList = ({
-  recipients,
+  skpdGenerate,
   selectedRecipients,
-  isLoading,
-  searchQuery,
-  onSelectRecipient,
+  onRecipientToggle
 }: RecipientListProps) => {
-  const filteredRecipients = searchQuery.trim() === ""
-    ? recipients
-    : recipients.filter(recipient => 
-        recipient.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipient.skpd_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const { recipients, isLoading } = useRecipientsList({ skpdGenerate });
+
+  if (isLoading) {
+    return (
+      <div className="py-4 flex justify-center">
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (recipients.length === 0) {
+    return (
+      <div className="text-center p-4 border rounded-md">
+        <p className="text-muted-foreground">No recipients available</p>
+      </div>
+    );
+  }
 
   return (
-    <FormControl>
-      <div className="relative">
-        <ScrollArea className="border rounded-md p-2 h-48">
-          {isLoading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : filteredRecipients.length > 0 ? (
-            <div className="space-y-2">
-              {filteredRecipients.map((recipient) => (
-                <div 
-                  key={recipient.user_id} 
-                  className={`flex items-center p-2 rounded-md ${
-                    selectedRecipients.includes(recipient.user_id) 
-                      ? 'bg-primary/10 border border-primary/30' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    id={`recipient-${recipient.user_id}`}
-                    value={recipient.user_id}
-                    className="mr-2"
-                    onChange={(e) => {
-                      onSelectRecipient(recipient.user_id, e.target.checked);
-                    }}
-                    checked={selectedRecipients.includes(recipient.user_id)}
-                  />
-                  <label 
-                    htmlFor={`recipient-${recipient.user_id}`} 
-                    className="text-sm flex-1 cursor-pointer"
-                  >
-                    <span className="font-medium">{recipient.user_name}</span>
-                    <br />
-                    <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
-                  </label>
-                  {selectedRecipients.includes(recipient.user_id) && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              No recipients found
-            </div>
-          )}
-        </ScrollArea>
-      </div>
-      <FormMessage />
-    </FormControl>
+    <div className="border rounded-md divide-y max-h-60 overflow-y-auto">
+      {recipients.map((recipient) => (
+        <div 
+          key={recipient.user_id} 
+          className="flex items-center p-2 hover:bg-muted"
+        >
+          <input 
+            type="checkbox" 
+            id={`recipient-${recipient.user_id}`}
+            checked={selectedRecipients.includes(recipient.user_id)}
+            onChange={() => onRecipientToggle(recipient.user_id)}
+            className="mr-3 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label 
+            htmlFor={`recipient-${recipient.user_id}`}
+            className="flex-1 cursor-pointer"
+          >
+            <div className="text-sm font-medium">{recipient.user_name}</div>
+            <div className="text-xs text-muted-foreground">{recipient.skpd_name}</div>
+          </label>
+        </div>
+      ))}
+    </div>
   );
 };

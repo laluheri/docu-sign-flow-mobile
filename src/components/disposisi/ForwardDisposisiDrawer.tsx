@@ -1,163 +1,190 @@
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Search, Send } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { forwardFormSchema, type ForwardFormValues } from "@/schemas/disposisiSchemas";
+import { useAuth } from "@/contexts/AuthContext";
 import { RecipientList } from "./RecipientList";
-import { useRecipientsList } from "@/hooks/useRecipientsList";
 
 interface ForwardDisposisiDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onForward: (data: ForwardFormValues) => Promise<void>;
   disposisiId: number;
+  skpdGenerate: string | number;
 }
 
-export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId }: ForwardDisposisiDrawerProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+export const ForwardDisposisiDrawer = ({
+  isOpen,
+  onClose,
+  disposisiId,
+  skpdGenerate
+}: ForwardDisposisiDrawerProps) => {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const { recipients, isLoading } = useRecipientsList({ 
-    skpd_generate: disposisiId ? String(disposisiId) : undefined 
-  });
-  
-  const form = useForm<ForwardFormValues>({
-    resolver: zodResolver(forwardFormSchema),
-    defaultValues: {
-      recipients: [],
-      instruction: "",
-      passphrase: "",
-    },
-  });
+  const [selectedRecipients, setSelectedRecipients] = useState<number[]>([]);
+  const [instruction, setInstruction] = useState("");
+  const [passphrase, setPassphrase] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const handleRecipientToggle = (userId: number) => {
+    setSelectedRecipients(prev => {
+      if (prev.includes(userId)) {
+        return prev.filter(id => id !== userId);
+      } else {
+        return [...prev, userId];
+      }
+    });
   };
 
-  const handleSelectRecipient = (recipientId: number, selected: boolean) => {
-    const currentRecipients = form.getValues("recipients");
-    const newRecipients = selected
-      ? [...currentRecipients, recipientId]
-      : currentRecipients.filter((id) => id !== recipientId);
-    form.setValue("recipients", newRecipients, { shouldValidate: true });
-  };
-
-  const handleSubmit = async (values: ForwardFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (selectedRecipients.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one recipient",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!passphrase) {
+      toast({
+        title: "Error",
+        description: "Please enter your passphrase",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     try {
-      await onForward(values);
-      form.reset();
+      if (!disposisiId || !user?.userData?.user_id) {
+        throw new Error("Missing required data");
+      }
+      
+      const response = await fetch("https://ttd.lombokutarakab.go.id/api/forwardDisposisi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dis_id: disposisiId,
+          user_id: user.userData.user_id,
+          recipients: selectedRecipients,
+          instruction,
+          passphrase
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok || !data.status) {
+        throw new Error(data.desc || "Failed to forward disposition");
+      }
+
+      toast({
+        title: "Success",
+        description: "Disposition has been forwarded successfully",
+      });
+      
+      onClose();
+      
+      // Reload page after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = "/disposisi";
+      }, 1500);
     } catch (error) {
       console.error("Error forwarding disposition:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to forward disposition",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const selectedCount = form.watch("recipients").length;
-  
-  // Return null if not open
   if (!isOpen) return null;
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="max-h-[85vh]">
-        <DrawerHeader className="border-b pb-3">
-          <DrawerTitle>Forward Disposition</DrawerTitle>
-        </DrawerHeader>
+    <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-end sm:items-center">
+      <div className="bg-background rounded-t-lg sm:rounded-lg w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col shadow-xl animate-in fade-in slide-in-from-bottom">
+        <div className="p-4 border-b">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Forward Disposition</h2>
+            <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+              &times;
+            </Button>
+          </div>
+        </div>
         
-        <div className="px-4 py-3 overflow-y-auto">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <div className="sticky top-0 z-10 mb-2 bg-background pt-1 pb-2">
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <Input
-                    placeholder="Search recipients..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="pl-9"
-                  />
-                </div>
-                {selectedCount > 0 && (
-                  <Badge variant="secondary" className="text-xs mt-2">
-                    {selectedCount} recipient{selectedCount > 1 ? 's' : ''} selected
-                  </Badge>
-                )}
+        <div className="p-4 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium mb-2">Recipients</h3>
+                <RecipientList
+                  skpdGenerate={skpdGenerate}
+                  selectedRecipients={selectedRecipients}
+                  onRecipientToggle={handleRecipientToggle}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Selected: {selectedRecipients.length} recipient{selectedRecipients.length !== 1 ? 's' : ''}
+                </p>
               </div>
               
-              <FormField
-                control={form.control}
-                name="recipients"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Recipients</FormLabel>
-                    <RecipientList
-                      recipients={recipients || []}
-                      selectedRecipients={field.value}
-                      isLoading={isLoading}
-                      searchQuery={searchQuery}
-                      onSelectRecipient={handleSelectRecipient}
-                    />
-                  </FormItem>
-                )}
-              />
+              <div>
+                <label htmlFor="instruction" className="text-sm font-medium block mb-1">
+                  Instruction (optional)
+                </label>
+                <textarea
+                  id="instruction"
+                  value={instruction}
+                  onChange={(e) => setInstruction(e.target.value)}
+                  className="w-full min-h-[100px] p-2 border rounded-md"
+                  placeholder="Add instructions for the recipients..."
+                />
+              </div>
               
-              <FormField
-                control={form.control}
-                name="instruction"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Instructions</FormLabel>
-                    <Textarea 
-                      placeholder="Enter instructions for the recipients"
-                      className="resize-none min-h-[100px]"
-                      {...field}
-                    />
-                  </FormItem>
+              <div>
+                <label htmlFor="passphrase" className="text-sm font-medium block mb-1">
+                  Your Passphrase
+                </label>
+                <input
+                  id="passphrase"
+                  type="password"
+                  value={passphrase}
+                  onChange={(e) => setPassphrase(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                  required
+                  placeholder="Enter your passphrase"
+                />
+              </div>
+            </div>
+          
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || selectedRecipients.length === 0}>
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Forwarding...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Forward
+                  </>
                 )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="passphrase"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Passphrase</FormLabel>
-                    <Input 
-                      type="password" 
-                      placeholder="Enter your passphrase"
-                      {...field}
-                    />
-                  </FormItem>
-                )}
-              />
-              
-              <DrawerFooter className="px-0 pt-2">
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Forwarding...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Forward Disposition
-                    </>
-                  )}
-                </Button>
-              </DrawerFooter>
-            </form>
-          </Form>
+              </Button>
+            </div>
+          </form>
         </div>
-      </DrawerContent>
-    </Drawer>
+      </div>
+    </div>
   );
 };

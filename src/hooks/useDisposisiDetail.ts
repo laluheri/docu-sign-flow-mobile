@@ -90,7 +90,7 @@ export const useDisposisiDetail = (id: string | undefined) => {
     }
     
     fetchDisposisiDetails();
-  }, [id]); // Removed toast from dependencies as it should be stable
+  }, [id]);
 
   return {
     loading,
