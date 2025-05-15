@@ -12,7 +12,7 @@ export const RecipientList = ({
   selectedRecipients,
   onRecipientToggle
 }: RecipientListProps) => {
-  const { recipients, isLoading } = useRecipientsList({ skpdGenerate });
+  const { recipients, isLoading } = useRecipientsList({ skpd_generate: skpdGenerate });
 
   if (isLoading) {
     return (
