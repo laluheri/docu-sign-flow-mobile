@@ -60,6 +60,7 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
 
   const selectedCount = form.watch("recipients").length;
 
+  // Early return if drawer shouldn't be open
   if (!isOpen) return null;
 
   return (

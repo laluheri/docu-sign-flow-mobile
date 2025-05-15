@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { FormControl, FormMessage } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check, Loader2 } from "lucide-react";
@@ -34,50 +33,54 @@ export const RecipientList = ({
 
   return (
     <FormControl>
-      <ScrollArea className="border rounded-md p-2 h-48">
-        {isLoading ? (
-          <div className="flex justify-center py-4">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : filteredRecipients.length > 0 ? (
-          filteredRecipients.map((recipient) => (
-            <div 
-              key={recipient.user_id} 
-              className={`flex items-center mb-2 p-2 rounded-md ${
-                selectedRecipients.includes(recipient.user_id) 
-                  ? 'bg-primary/10 border border-primary/30' 
-                  : 'hover:bg-muted/50'
-              }`}
-            >
-              <input
-                type="checkbox"
-                id={`recipient-${recipient.user_id}`}
-                value={recipient.user_id}
-                className="mr-2"
-                onChange={(e) => {
-                  onSelectRecipient(recipient.user_id, e.target.checked);
-                }}
-                checked={selectedRecipients.includes(recipient.user_id)}
-              />
-              <label 
-                htmlFor={`recipient-${recipient.user_id}`} 
-                className="text-sm flex-1 cursor-pointer"
-              >
-                <span className="font-medium">{recipient.user_name}</span>
-                <br />
-                <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
-              </label>
-              {selectedRecipients.includes(recipient.user_id) && (
-                <Check className="h-4 w-4 text-primary" />
-              )}
+      <div className="relative">
+        <ScrollArea className="border rounded-md p-2 h-48">
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ))
-        ) : (
-          <div className="text-center py-6 text-muted-foreground">
-            No recipients found
-          </div>
-        )}
-      </ScrollArea>
+          ) : filteredRecipients.length > 0 ? (
+            <div>
+              {filteredRecipients.map((recipient) => (
+                <div 
+                  key={recipient.user_id} 
+                  className={`flex items-center mb-2 p-2 rounded-md ${
+                    selectedRecipients.includes(recipient.user_id) 
+                      ? 'bg-primary/10 border border-primary/30' 
+                      : 'hover:bg-muted/50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    id={`recipient-${recipient.user_id}`}
+                    value={recipient.user_id}
+                    className="mr-2"
+                    onChange={(e) => {
+                      onSelectRecipient(recipient.user_id, e.target.checked);
+                    }}
+                    checked={selectedRecipients.includes(recipient.user_id)}
+                  />
+                  <label 
+                    htmlFor={`recipient-${recipient.user_id}`} 
+                    className="text-sm flex-1 cursor-pointer"
+                  >
+                    <span className="font-medium">{recipient.user_name}</span>
+                    <br />
+                    <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
+                  </label>
+                  {selectedRecipients.includes(recipient.user_id) && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              No recipients found
+            </div>
+          )}
+        </ScrollArea>
+      </div>
       <FormMessage />
     </FormControl>
   );
