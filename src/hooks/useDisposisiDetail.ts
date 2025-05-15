@@ -77,6 +77,7 @@ export const useDisposisiDetail = (id: string | undefined) => {
         description: error instanceof Error ? error.message : "Failed to load disposisi details",
         variant: "destructive",
       });
+      setDisposisiData(null);
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ export const useDisposisiDetail = (id: string | undefined) => {
     }
     
     fetchDisposisiDetails();
-  }, [id]);
+  }, [id, toast]);
 
   return {
     loading,

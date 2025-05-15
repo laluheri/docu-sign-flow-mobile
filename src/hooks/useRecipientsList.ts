@@ -58,6 +58,7 @@ export const useRecipientsList = (disposisiData: DisposisiData | null) => {
         description: "Failed to load recipient list",
         variant: "destructive",
       });
+      setRecipients([]);
     } finally {
       setIsLoading(false);
     }

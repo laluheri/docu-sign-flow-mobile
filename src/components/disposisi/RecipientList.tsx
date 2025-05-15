@@ -41,38 +41,40 @@ export const RecipientList = ({
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : filteredRecipients.length > 0 ? (
-              filteredRecipients.map((recipient) => (
-                <div 
-                  key={recipient.user_id} 
-                  className={`flex items-center mb-2 p-2 rounded-md ${
-                    selectedRecipients.includes(recipient.user_id) 
-                      ? 'bg-primary/10 border border-primary/30' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    id={`recipient-${recipient.user_id}`}
-                    value={recipient.user_id}
-                    className="mr-2"
-                    onChange={(e) => {
-                      onSelectRecipient(recipient.user_id, e.target.checked);
-                    }}
-                    checked={selectedRecipients.includes(recipient.user_id)}
-                  />
-                  <label 
-                    htmlFor={`recipient-${recipient.user_id}`} 
-                    className="text-sm flex-1 cursor-pointer"
+              <div>
+                {filteredRecipients.map((recipient) => (
+                  <div 
+                    key={recipient.user_id} 
+                    className={`flex items-center mb-2 p-2 rounded-md ${
+                      selectedRecipients.includes(recipient.user_id) 
+                        ? 'bg-primary/10 border border-primary/30' 
+                        : 'hover:bg-muted/50'
+                    }`}
                   >
-                    <span className="font-medium">{recipient.user_name}</span>
-                    <br />
-                    <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
-                  </label>
-                  {selectedRecipients.includes(recipient.user_id) && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                </div>
-              ))
+                    <input
+                      type="checkbox"
+                      id={`recipient-${recipient.user_id}`}
+                      value={recipient.user_id}
+                      className="mr-2"
+                      onChange={(e) => {
+                        onSelectRecipient(recipient.user_id, e.target.checked);
+                      }}
+                      checked={selectedRecipients.includes(recipient.user_id)}
+                    />
+                    <label 
+                      htmlFor={`recipient-${recipient.user_id}`} 
+                      className="text-sm flex-1 cursor-pointer"
+                    >
+                      <span className="font-medium">{recipient.user_name}</span>
+                      <br />
+                      <span className="text-xs text-muted-foreground">{recipient.skpd_name}</span>
+                    </label>
+                    {selectedRecipients.includes(recipient.user_id) && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="text-center py-6 text-muted-foreground">
                 No recipients found

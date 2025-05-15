@@ -96,7 +96,7 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Recipients</FormLabel>
                     <RecipientList
-                      recipients={recipients}
+                      recipients={recipients || []}
                       selectedRecipients={field.value}
                       isLoading={isLoading}
                       searchQuery={searchQuery}

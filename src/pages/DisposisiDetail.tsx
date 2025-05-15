@@ -30,7 +30,6 @@ const DisposisiDetail = () => {
         variant: "destructive"
       });
       navigate("/disposisi");
-      return;
     }
   }, [id, navigate, toast]);
   
@@ -48,6 +47,10 @@ const DisposisiDetail = () => {
   
   const handleForwardDisposisi = async (formData: { recipients: number[], instruction: string, passphrase: string }) => {
     try {
+      if (!id || !user?.userData?.user_id) {
+        throw new Error("Missing required data");
+      }
+      
       const response = await fetch("https://ttd.lombokutarakab.go.id/api/forwardDisposisi", {
         method: "POST",
         headers: {
@@ -55,7 +58,7 @@ const DisposisiDetail = () => {
         },
         body: JSON.stringify({
           dis_id: id,
-          user_id: user?.userData?.user_id,
+          user_id: user.userData.user_id,
           recipients: formData.recipients,
           instruction: formData.instruction,
           passphrase: formData.passphrase
@@ -97,6 +100,8 @@ const DisposisiDetail = () => {
   if (!disposisiData) {
     return <DisposisiNotFound onBack={handleBack} />;
   }
+
+  const disposisiNumericId = id ? parseInt(id, 10) : 0;
 
   return (
     <div className="mobile-container">
@@ -142,7 +147,7 @@ const DisposisiDetail = () => {
           isOpen={isForwardDrawerOpen}
           onClose={() => setIsForwardDrawerOpen(false)}
           onForward={handleForwardDisposisi}
-          disposisiId={Number(id) || 0}
+          disposisiId={disposisiNumericId}
         />
       )}
     </div>
