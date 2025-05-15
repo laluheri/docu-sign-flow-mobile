@@ -60,6 +60,8 @@ export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId
 
   const selectedCount = form.watch("recipients").length;
 
+  if (!isOpen) return null;
+
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent className="max-h-[85vh]">

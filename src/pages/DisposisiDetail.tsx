@@ -32,7 +32,7 @@ const DisposisiDetail = () => {
       navigate("/disposisi");
       return;
     }
-  }, [id]);
+  }, [id, navigate, toast]);
   
   useEffect(() => {
     if (disposisiData) {
@@ -136,12 +136,14 @@ const DisposisiDetail = () => {
           />
         )}
         
-        <ForwardDisposisiDrawer 
-          isOpen={isForwardDrawerOpen}
-          onClose={() => setIsForwardDrawerOpen(false)}
-          onForward={handleForwardDisposisi}
-          disposisiId={Number(id)}
-        />
+        {isForwardDrawerOpen && (
+          <ForwardDisposisiDrawer 
+            isOpen={isForwardDrawerOpen}
+            onClose={() => setIsForwardDrawerOpen(false)}
+            onForward={handleForwardDisposisi}
+            disposisiId={Number(id)}
+          />
+        )}
       </div>
     </div>
   );
