@@ -24,7 +24,9 @@ interface ForwardDisposisiDrawerProps {
 export const ForwardDisposisiDrawer = ({ isOpen, onClose, onForward, disposisiId }: ForwardDisposisiDrawerProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { recipients, isLoading } = useRecipientsList({ skpd_generate: String(disposisiId) });
+  const { recipients, isLoading } = useRecipientsList({ 
+    skpd_generate: disposisiId ? String(disposisiId) : undefined 
+  });
   
   const form = useForm<ForwardFormValues>({
     resolver: zodResolver(forwardFormSchema),

@@ -9,20 +9,20 @@ interface Recipient {
   skpd_name: string;
 }
 
-interface DisposisiData {
-  skpd_generate?: string;
+interface UseRecipientsListParams {
+  skpd_generate: string | number | undefined;
 }
 
-export const useRecipientsList = (disposisiData: DisposisiData | null) => {
+export const useRecipientsList = (params: UseRecipientsListParams) => {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const fetchRecipients = useCallback(async () => {
-    if (!disposisiData?.skpd_generate || !user?.userData?.user_id) return;
+    if (!params?.skpd_generate || !user?.userData?.user_id) return;
     
-    const skpdId = disposisiData.skpd_generate;
+    const skpdId = params.skpd_generate;
     const userId = user.userData.user_id;
     
     setIsLoading(true);
@@ -62,13 +62,13 @@ export const useRecipientsList = (disposisiData: DisposisiData | null) => {
     } finally {
       setIsLoading(false);
     }
-  }, [disposisiData, user, toast]);
+  }, [params?.skpd_generate, user?.userData?.user_id, toast]);
 
   useEffect(() => {
-    if (disposisiData?.skpd_generate) {
+    if (params?.skpd_generate) {
       fetchRecipients();
     }
-  }, [disposisiData, fetchRecipients]);
+  }, [params?.skpd_generate, fetchRecipients]);
 
   return {
     recipients,

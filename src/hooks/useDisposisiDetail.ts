@@ -90,7 +90,7 @@ export const useDisposisiDetail = (id: string | undefined) => {
     }
     
     fetchDisposisiDetails();
-  }, [id, toast]);
+  }, [id]); // toast is stable, so we don't need it in the dependency array
 
   return {
     loading,
