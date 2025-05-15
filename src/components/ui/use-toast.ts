@@ -1,5 +1,5 @@
 
-// This should import from the hooks directory, not from itself
+// This should import from the hooks directory
 import { useToast, toast } from "@/hooks/use-toast";
 
 export { useToast, toast };

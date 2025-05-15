@@ -35,13 +35,13 @@ export const RecipientList = ({
     <FormControl>
       <div className="relative">
         <ScrollArea className="border rounded-md p-2 h-48">
-          {isLoading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : filteredRecipients.length > 0 ? (
-            <div>
-              {filteredRecipients.map((recipient) => (
+          <div>
+            {isLoading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredRecipients.length > 0 ? (
+              filteredRecipients.map((recipient) => (
                 <div 
                   key={recipient.user_id} 
                   className={`flex items-center mb-2 p-2 rounded-md ${
@@ -72,13 +72,13 @@ export const RecipientList = ({
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              No recipients found
-            </div>
-          )}
+              ))
+            ) : (
+              <div className="text-center py-6 text-muted-foreground">
+                No recipients found
+              </div>
+            )}
+          </div>
         </ScrollArea>
       </div>
       <FormMessage />

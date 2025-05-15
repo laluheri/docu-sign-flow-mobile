@@ -142,7 +142,7 @@ const DisposisiDetail = () => {
           isOpen={isForwardDrawerOpen}
           onClose={() => setIsForwardDrawerOpen(false)}
           onForward={handleForwardDisposisi}
-          disposisiId={Number(id)}
+          disposisiId={Number(id) || 0}
         />
       )}
     </div>

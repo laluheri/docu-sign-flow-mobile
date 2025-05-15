@@ -63,7 +63,7 @@ export const useRecipientsList = (disposisiData: any) => {
     if (disposisiData) {
       fetchRecipients();
     }
-  }, [disposisiData, user?.userData?.user_id]); // Add dependencies
+  }, [disposisiData, user?.userData?.user_id, toast, fetchRecipients]); // Add all dependencies
 
   return {
     recipients,
