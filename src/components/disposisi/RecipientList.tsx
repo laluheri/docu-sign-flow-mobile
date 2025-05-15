@@ -31,10 +31,15 @@ export const RecipientList = ({
     );
   }
 
+  // Safe value for the RadioGroup that handles null, undefined, and valid cases
+  const safeSelectedValue = selectedRecipient !== null && selectedRecipient !== undefined 
+    ? selectedRecipient.toString() 
+    : undefined;
+
   return (
     <div className="border rounded-md p-2 max-h-60 overflow-y-auto">
       <RadioGroup 
-        value={selectedRecipient !== null ? selectedRecipient.toString() : undefined} 
+        value={safeSelectedValue}
         onValueChange={(value) => onRecipientSelect(parseInt(value, 10))}
         className="space-y-1"
       >
