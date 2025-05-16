@@ -33,6 +33,9 @@ export const RecipientList = ({
 
   return (
     <div className="border rounded-md p-2 max-h-60 overflow-y-auto">
+      <div className="text-xs text-muted-foreground px-2 py-1 mb-2 bg-muted/50 rounded">
+        Select one recipient only
+      </div>
       <ul className="space-y-1">
         {recipients.map((recipient) => (
           <li 

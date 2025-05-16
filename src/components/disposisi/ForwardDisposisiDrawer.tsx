@@ -33,6 +33,7 @@ export const ForwardDisposisiDrawer = ({
   const selectedRecipientData = recipients.find(r => r.user_id === selectedRecipient);
 
   const handleRecipientSelect = (userId: number) => {
+    // Ensure only one selection by directly setting the state
     setSelectedRecipient(userId);
   };
 
@@ -136,7 +137,7 @@ export const ForwardDisposisiDrawer = ({
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground mt-1">
-                    No recipient selected
+                    Please select one recipient
                   </p>
                 )}
               </div>
