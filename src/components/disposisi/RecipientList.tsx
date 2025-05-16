@@ -1,6 +1,8 @@
 
 import { useRecipientsList } from "@/hooks/useRecipientsList";
 import { Check } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface RecipientListProps {
   skpdGenerate: string | number | undefined;
@@ -33,28 +35,39 @@ export const RecipientList = ({
 
   return (
     <div className="border rounded-md p-2 max-h-60 overflow-y-auto">
-      <div className="text-xs text-muted-foreground px-2 py-1 mb-2 bg-muted/50 rounded">
+      <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2 bg-muted/50 rounded">
         Select one recipient only
       </div>
-      <ul className="space-y-1">
+      <RadioGroup 
+        value={selectedRecipient?.toString() || ""} 
+        onValueChange={(value) => onRecipientSelect(parseInt(value, 10))}
+        className="space-y-1"
+      >
         {recipients.map((recipient) => (
-          <li 
-            key={recipient.user_id} 
-            onClick={() => onRecipientSelect(recipient.user_id)}
-            className={`flex items-center hover:bg-muted p-2 rounded-md cursor-pointer ${
-              selectedRecipient === recipient.user_id ? "bg-primary/10 border-l-4 border-primary" : ""
+          <div 
+            key={recipient.user_id}
+            className={`flex items-center p-2 rounded-md hover:bg-muted ${
+              selectedRecipient === recipient.user_id ? "bg-primary/10 border-l-2 border-primary" : ""
             }`}
           >
-            <div className="flex-1">
+            <RadioGroupItem 
+              value={recipient.user_id.toString()} 
+              id={`recipient-${recipient.user_id}`}
+              className="mr-2"
+            />
+            <Label 
+              htmlFor={`recipient-${recipient.user_id}`}
+              className="flex-1 cursor-pointer"
+            >
               <div className="font-medium text-sm">{recipient.user_name}</div>
               <div className="text-xs text-muted-foreground">{recipient.skpd_name}</div>
-            </div>
+            </Label>
             {selectedRecipient === recipient.user_id && (
               <Check className="h-4 w-4 text-primary ml-2 flex-shrink-0" />
             )}
-          </li>
+          </div>
         ))}
-      </ul>
+      </RadioGroup>
     </div>
   );
 };

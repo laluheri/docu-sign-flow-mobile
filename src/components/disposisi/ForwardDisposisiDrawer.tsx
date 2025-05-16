@@ -33,7 +33,7 @@ export const ForwardDisposisiDrawer = ({
   const selectedRecipientData = recipients.find(r => r.user_id === selectedRecipient);
 
   const handleRecipientSelect = (userId: number) => {
-    // Ensure only one selection by directly setting the state
+    // Using radio buttons ensures only one selection is possible
     setSelectedRecipient(userId);
   };
 
