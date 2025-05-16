@@ -5,6 +5,7 @@ import { Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { RecipientList } from "./RecipientList";
+import { useRecipientsList } from "@/hooks/useRecipientsList";
 
 interface ForwardDisposisiDrawerProps {
   isOpen: boolean;
@@ -25,6 +26,11 @@ export const ForwardDisposisiDrawer = ({
   const [instruction, setInstruction] = useState("");
   const [passphrase, setPassphrase] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Fetch recipients to get the selected recipient's name
+  const { recipients } = useRecipientsList({ skpd_generate: skpdGenerate });
+  
+  const selectedRecipientData = recipients.find(r => r.user_id === selectedRecipient);
 
   const handleRecipientSelect = (userId: number) => {
     setSelectedRecipient(userId);
@@ -124,9 +130,13 @@ export const ForwardDisposisiDrawer = ({
                   selectedRecipient={selectedRecipient}
                   onRecipientSelect={handleRecipientSelect}
                 />
-                {selectedRecipient !== null && (
+                {selectedRecipientData ? (
                   <p className="text-xs text-primary mt-1">
-                    A recipient is selected
+                    Selected recipient: <span className="font-medium">{selectedRecipientData.user_name}</span>
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    No recipient selected
                   </p>
                 )}
               </div>
